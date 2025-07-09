@@ -2,10 +2,10 @@
 
 from bookshelf.models import Book
 
-book = Book(title="1984", author="George Orwell", publication_year=1949)
-book.save()  # Saves the book instance to the database
 
-# Expected Output:
-# The book is saved successfully in the database.
-# You can verify by running: Book.objects.all()
-# <QuerySet [<Book: 1984>]>
+# Python command:
+Book.objects.create(title="1984", author="George Orwell", publication_year=1949)
+
+# Expected output (example):
+# <Book: 1984>
+
