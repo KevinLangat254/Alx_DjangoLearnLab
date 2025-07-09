@@ -1,12 +1,12 @@
-# Retrieve all Book instances from the database
+# Retrieve a specific book instance using Django ORM
 
-from bookshelf.models import Book
+# Python command:
+book = Book.objects.get(title="1984")
 
-# Get all books
-books = Book.objects.all()
+# Expected output:
+# <Book: 1984>
 
-# Display the result
-print(books)
+print(book)
 
 # Expected Output:
 # <QuerySet [<Book: 1984>, <Book: Another Book>, ...]>
