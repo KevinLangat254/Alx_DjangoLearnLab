@@ -7,6 +7,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
+// ... existing code ...
+
 # Create your views here.
 def home(request):
     return HttpResponse("Welcome to the Library App")
