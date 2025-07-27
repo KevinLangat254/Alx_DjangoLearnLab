@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.http import HttpResponse
 
 # Create your models here.
 class Book(models.Model):
@@ -51,3 +52,11 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+
+
+def my_view(request):
+    response = HttpResponse("Your page content")
+    response['Content-Security-Policy'] = "default-src 'self'"
+    return response
