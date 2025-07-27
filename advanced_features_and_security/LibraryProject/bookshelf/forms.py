@@ -2,7 +2,7 @@ from django import forms
 from .models import Book
 
 
-class BookForm(forms.ModelForm):
+class ExampleForm(forms.ModelForm):
     """
     Form for creating and updating Book instances.
     This uses Django’s ModelForm for automatic validation and ORM safety.
