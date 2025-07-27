@@ -127,7 +127,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom user model
-AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
 # Media files settings
 MEDIA_URL = '/media/'   
 MEDIA_ROOT = BASE_DIR / 'media'
