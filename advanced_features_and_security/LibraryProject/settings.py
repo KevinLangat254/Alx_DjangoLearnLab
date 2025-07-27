@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'relationship_app.apps.RelationshipAppConfig',
 ]
 
+AUTH_USER_MODEL = 'bookshelf.CustomUser'
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,7 +60,7 @@ ROOT_URLCONF = 'LibraryProject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'relationship_app', 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'bookshelf', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,7 +81,7 @@ WSGI_APPLICATION = 'LibraryProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'BookDB',
+        'NAME': 'BookDB_wk11',
         'USER': 'root',
         'PASSWORD': '30042004',
         'HOST': 'localhost',
@@ -125,6 +128,8 @@ STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'                  # Redirect here if @login_required fails

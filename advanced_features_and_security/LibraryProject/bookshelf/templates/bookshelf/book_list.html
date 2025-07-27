@@ -1,0 +1,22 @@
+<!-- bookshelf/templates/bookshelf/book_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Books</title>
+</head>
+<body>
+    <h1>Book List</h1>
+    <a href="{% url 'book_create' %}">Add New Book</a>
+    <ul>
+        {% for book in books %}
+        <li>
+            <strong>{{ book.title }}</strong> by {{ book.author }} ({{ book.publication_year }})
+            - <a href="{% url 'book_edit' book.pk %}">Edit</a>
+            - <a href="{% url 'book_delete' book.pk %}">Delete</a>
+        </li>
+        {% empty %}
+        <li>No books available.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
