@@ -1,0 +1,19 @@
+<!-- book_form.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ action }} Book</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>{{ action }} Book</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">{{ action }} Book</button>
+    </form>
+    <a href="{% url 'list-books' %}">Back to Book List</a>
+</body>
+</html> 
