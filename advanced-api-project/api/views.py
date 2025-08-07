@@ -13,6 +13,7 @@ from rest_framework import generics, permissions
 from .models import Book
 from .serializers import BookSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 # Custom permission class to allow read-only access for all users,
 # but restrict write operations to admin users only.
@@ -43,13 +44,13 @@ class BookListView(generics.ListAPIView):
 class BookCreateView(generics.CreateAPIView):
     """
     API view to create a new book.
-    - Requires authentication (IsAuthenticated permission).
+    - Requires authentication (IsAuthenticatedOrReadOnly permission).
     - Custom validation: publication_year cannot be in the future.
     - Custom save logic is implemented in perform_create.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can create
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Authenticated users can create; others read-only
 
     def perform_create(self, serializer):
         # Custom hook: validate publication_year is not in the future
@@ -69,17 +70,17 @@ class BookDetailView(generics.RetrieveAPIView):
 class BookUpdateView(generics.UpdateAPIView):
     """
     API view to update an existing book.
-    - Requires authentication (IsAuthenticated permission).
+    - Requires authentication (IsAuthenticatedOrReadOnly permission).
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 class BookDeleteView(generics.DestroyAPIView):
     """
     API view to delete a book.
-    - Requires authentication (IsAuthenticated permission).
+    - Requires authentication (IsAuthenticatedOrReadOnly permission).
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [permissions.IsAuthenticated]        
+    permission_classes = [IsAuthenticatedOrReadOnly]        
