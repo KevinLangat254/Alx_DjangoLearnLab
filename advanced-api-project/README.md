@@ -45,3 +45,57 @@ This document describes how each API view in `api/views.py` is configured and in
 - Custom validation logic is implemented in the create view to enforce business rules.
 
 For further customization or to apply the custom permission, update the `permission_classes` attribute in the relevant view. 
+
+## Filtering, Searching, and Ordering
+
+### Filtering
+Filtering is enabled on the `BookListView` using DjangoFilterBackend. You can filter books by `author` and `publication_year` using query parameters.
+
+**Example:**
+```
+GET /api/books/?author=John&publication_year=2020
+```
+This returns all books authored by John and published in 2020.
+
+### Searching
+Currently, full-text search is not implemented in the provided views. To add search functionality, you can use Django REST Framework's `SearchFilter` and specify `search_fields` in the view.
+
+**Example Implementation (not yet in code):**
+```python
+from rest_framework.filters import SearchFilter
+
+class BookListView(generics.ListAPIView):
+    ...
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['title', 'author']
+```
+**Example Request:**
+```
+GET /api/books/?search=python
+```
+This would return books with 'python' in the title or author fields.
+
+### Ordering
+Ordering is not currently enabled in the provided views. To add ordering, use Django REST Framework's `OrderingFilter` and specify `ordering_fields`.
+
+**Example Implementation (not yet in code):**
+```python
+from rest_framework.filters import OrderingFilter
+
+class BookListView(generics.ListAPIView):
+    ...
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ['title', 'publication_year']
+```
+**Example Request:**
+```
+GET /api/books/?ordering=title
+GET /api/books/?ordering=-publication_year
+```
+This would return books ordered by title (ascending) or by publication year (descending).
+
+---
+
+**Note:**
+- Filtering by `author` and `publication_year` is available out of the box.
+- Searching and ordering are not yet implemented, but code examples above show how to add them if needed. 

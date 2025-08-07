@@ -9,11 +9,14 @@
 from datetime import datetime
 from django.forms import ValidationError
 from django.shortcuts import render
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, filters
 from .models import Book
 from .serializers import BookSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 
 # Custom permission class to allow read-only access for all users,
 # but restrict write operations to admin users only.
@@ -38,8 +41,10 @@ class BookListView(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [permissions.AllowAny]  # No authentication required
-    filter_backends = [DjangoFilterBackend]      # Enables filtering
-    filterset_fields = ['author', 'publication_year']  # Fields available for filtering
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]      # Enables filtering
+    filterset_fields = ['title','author', 'publication_year']  # Fields available for filtering
+    search_fields = ['title', 'author']  # Fields available for search
+    ordering_fields = ['publication_year', 'title']  # Fields available for ordering
 
 class BookCreateView(generics.CreateAPIView):
     """
@@ -84,3 +89,19 @@ class BookDeleteView(generics.DestroyAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]        
+
+class APIRootView(APIView):
+    """
+    Root API landing page view. Returns a welcome message and basic API info.
+    """
+    def get(self, request, format=None):
+        return Response({
+            'message': 'Welcome to the Advanced API Project!',
+            'endpoints': {
+                'books_list': '/api/books/',
+                'book_detail': '/api/books/<id>/',
+                'book_create': '/api/books/create/',
+                'book_update': '/api/books/update/<id>/',
+                'book_delete': '/api/books/delete/<id>/',
+            }
+        })        
