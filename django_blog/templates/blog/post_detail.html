@@ -9,6 +9,16 @@
     <p style="color:#888;">By {{ object.author.username }} • {{ object.published_date|date:"M d, Y H:i" }}</p>
     <div style="margin-top: 20px; white-space: pre-wrap; line-height: 1.7;">{{ object.content }}</div>
 
+    <!-- Tags Section -->
+    <p style="margin-top: 15px;">
+      <strong>Tags:</strong>
+      {% for tag in object.tags.all %}
+        <a href="{% url 'posts_by_tag' tag.name %}" style="margin-right: 8px; color: #667eea;">{{ tag.name }}</a>
+      {% empty %}
+        No tags
+      {% endfor %}
+    </p>
+
     <div class="cta-buttons" style="margin-top: 25px; justify-content: flex-start;">
       <a href="{% url 'post-list' %}" class="btn btn-secondary">← Back to Posts</a>
       {% if request.user == object.author %}
@@ -75,4 +85,4 @@
     {% endif %}
   </div>
 </div>
-{% endblock %} 
+{% endblock %}

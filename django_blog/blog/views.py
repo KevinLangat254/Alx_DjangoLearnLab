@@ -10,7 +10,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .models import Post, Comment
-
+from django.db.models import Q
 
 def home(request):
     return render(request, 'home.html')
@@ -62,9 +62,27 @@ def profile(request):
 # READ - List all posts
 class PostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html'  # default: <app>/<model>_list.html
+    template_name = 'blog/post_list.html'
     context_object_name = 'posts'
     ordering = ['-published_date']  # newest first
+
+    def get_queryset(self):
+        query = self.request.GET.get('q', '')
+        queryset = super().get_queryset()
+
+        if query:
+            queryset = queryset.filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query) |
+                Q(tags__name__icontains=query)  
+            ).distinct()
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('q', '')  # so template remembers search term
+        return context
 
 # READ - Single post detail
 class PostDetailView(DetailView):
@@ -155,4 +173,12 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def get_success_url(self):
         return self.object.post.get_absolute_url()
-    
+
+# def search_posts(request):
+#     query = request.GET.get('q', '')
+#     results = Post.objects.filter(
+#         Q(title__icontains=query) |
+#         Q(content__icontains=query) |
+#         Q(tags__name__icontains=query)  # works for both manual and taggit
+#     ).distinct()
+#     return render(request, 'blog/search_results.html', {'results': results, 'query': query})    

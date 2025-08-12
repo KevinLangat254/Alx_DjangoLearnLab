@@ -417,3 +417,40 @@ footer {
     color: white;
     backdrop-filter: blur(10px);
 }
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto 20px;
+    max-width: 500px;
+    background: #f9f9f9;
+    padding: 8px 12px;
+    border-radius: 25px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  .search-bar input {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .search-bar button {
+    padding: 8px 16px;
+    border: none;
+    background: #007bff;
+    color: white;
+    font-size: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .search-bar button:hover {
+    background: #0056b3;
+  }
