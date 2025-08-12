@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Posts - Django Blog{% endblock %}
+
+{% block content %}
+<div class="home-container">
+  <h1>All Posts</h1>
+
+  <div class="cta-buttons" style="margin-bottom: 20px;">
+    {% if user.is_authenticated %}
+      <a class="btn btn-primary" href="{% url 'post-create' %}">New Post</a>
+    {% else %}
+      <a class="btn btn-secondary" href="{% url 'login' %}">Login to create a post</a>
+    {% endif %}
+  </div>
+
+  {% if posts %}
+    <div class="feature-grid">
+      {% for post in posts %}
+        <div class="feature-card">
+          <h3><a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a></h3>
+          <p style="color:#888; font-size: 0.9rem;">By {{ post.author.username }} • {{ post.published_date|date:"M d, Y H:i" }}</p>
+          <p>{{ post.content|truncatechars:160 }}</p>
+          <a href="{% url 'post-detail' post.pk %}" class="form-links">Read more →</a>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="welcome-section">
+      <p>No posts yet.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %} 
