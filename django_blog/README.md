@@ -387,6 +387,13 @@ The blog module lets authenticated users create, view, edit, and delete posts. P
   - `published_date` (DateTime, auto_now_add)
   - `author` (ForeignKey to `User`)
 
+- **Comment**
+  - `post` (ForeignKey to `Post`, related_name='comments')
+  - `author` (ForeignKey to `User`)
+  - `content` (TextField)
+  - `created_at` (DateTime, auto_now_add)
+  - `updated_at` (DateTime, auto_now)
+
 Posts are ordered by `published_date` (newest first). After creating or editing a post, users are redirected to the post detail page via `get_absolute_url`.
 
 ### URLs
@@ -399,40 +406,56 @@ Posts are ordered by `published_date` (newest first). After creating or editing 
 - `GET /posts/<id>/delete/` → Delete confirmation (author only)
 - `POST /posts/<id>/delete/` → Delete post (author only)
 
+**Comment URLs:**
+- `GET /posts/<post_id>/comments/new/` → Create comment form (login required)
+- `POST /posts/<post_id>/comments/new/` → Create comment (login required)
+- `GET /comments/<id>/edit/` → Edit comment form (author only)
+- `POST /comments/<id>/edit/` → Update comment (author only)
+- `GET /comments/<id>/delete/` → Delete comment confirmation (author only)
+- `POST /comments/<id>/delete/` → Delete comment (author only)
+
 ### Permissions & Security
 - **Create**: Login required.
 - **Edit/Delete**: Only the post author can edit or delete (enforced with `LoginRequiredMixin` and `UserPassesTestMixin`).
+- **Comments**: Login required to create; only comment author can edit/delete.
 - **CSRF**: All forms include CSRF tokens.
-- **Passwords/Sessions**: Handled by Django’s built-in authentication.
-- **Output escaping**: Post content is rendered with Django’s default auto-escaping (no raw HTML rendered by default).
+- **Passwords/Sessions**: Handled by Django's built-in authentication.
+- **Output escaping**: Post content is rendered with Django's default auto-escaping (no raw HTML rendered by default).
 
 ### Forms & Validation
 - `PostForm`: fields `title`, `content`.
+- `CommentForm`: field `content` with validation for non-empty content.
 - Server-side validation via Django forms; client-side enhancements provided by `static/js/script.js` for general form UX.
 
 ### Views
 - `PostListView` (list)
-- `PostDetailView` (detail)
+- `PostDetailView` (detail, handles comment submission)
 - `PostCreateView` (create, login required)
 - `PostUpdateView` (update, login required, author check)
 - `PostDeleteView` (delete, login required, author check)
+- `CommentCreateView` (create comment, login required)
+- `CommentUpdateView` (update comment, login required, author check)
+- `CommentDeleteView` (delete comment, login required, author check)
 
 ### Templates (styled with existing CSS)
 - `templates/blog/post_list.html`
-- `templates/blog/post_detail.html`
+- `templates/blog/post_detail.html` (includes comments section)
 - `templates/blog/post_form.html`
 - `templates/blog/post_confirm_delete.html`
+- `templates/blog/comment_form.html`
+- `templates/blog/comment_confirm_delete.html`
 
 All templates extend `base.html` and use the existing classes: `.form-container`, `.form-group`, `.submit-btn`, `.home-container`, `.feature-grid`, `.feature-card`, etc.
 
 ### Admin
-- `Post` and `Profile` are registered in the Django admin. Admins can manage posts and profiles via `/admin/`.
+- `Post`, `Profile`, and `Comment` are registered in the Django admin. Admins can manage posts, profiles, and comments via `/admin/`.
 
 ### How to Use
 1. Navigate to `http://127.0.0.1:8000/posts/` to view posts.
-2. Login and click “New Post” to create one.
-3. On a post detail page, authors can “Edit” or “Delete” their own posts.
-4. Use the navigation to move between list, detail, create, and edit screens.
+2. Login and click "New Post" to create one.
+3. On a post detail page, authors can "Edit" or "Delete" their own posts.
+4. **Comments**: Login users can add comments on any post. Comment authors can edit/delete their own comments.
+5. Use the navigation to move between list, detail, create, and edit screens.
 
 ### Testing Blog Posts
 - **Create Post (Authenticated)**
@@ -448,4 +471,18 @@ All templates extend `base.html` and use the existing classes: `.form-container`
   1. Login as a different user → try `/posts/<id>/edit/` or `/posts/<id>/delete/`.
   2. Expected: Access denied (author check fails).
 - **Public Access**
-  - `/posts/` and `/posts/<id>/` are accessible without login. 
+  - `/posts/` and `/posts/<id>/` are accessible without login.
+
+### Testing Comments
+- **Add Comment (Authenticated)**
+  1. Login → visit any post detail page → fill comment form → Submit.
+  2. Expected: Comment appears in comments list; form resets.
+- **Edit Comment (Author Only)**
+  1. As comment author, click "Edit" → modify content → Save.
+  2. Expected: Comment updated; redirect to post detail.
+- **Delete Comment (Author Only)**
+  1. As comment author, click "Delete" → confirm deletion.
+  2. Expected: Comment removed; redirect to post detail.
+- **Comment Permissions**
+  1. Try to edit/delete another user's comment.
+  2. Expected: Access denied (author check fails). 
