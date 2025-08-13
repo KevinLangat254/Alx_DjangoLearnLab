@@ -11,6 +11,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from .models import Post, Comment
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from taggit.models import Tag
+
 
 def home(request):
     return render(request, 'home.html')
@@ -174,11 +177,20 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return self.object.post.get_absolute_url()
 
-# def search_posts(request):
-#     query = request.GET.get('q', '')
-#     results = Post.objects.filter(
-#         Q(title__icontains=query) |
-#         Q(content__icontains=query) |
-#         Q(tags__name__icontains=query)  # works for both manual and taggit
-#     ).distinct()
-#     return render(request, 'blog/search_results.html', {'results': results, 'query': query})    
+
+
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        # Get the tag from the URL
+        self.tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
+        # Filter posts containing this tag
+        return Post.objects.filter(tags=self.tag)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context

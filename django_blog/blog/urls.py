@@ -2,7 +2,7 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 from blog import views
-
+from
 
 
 urlpatterns = [
@@ -25,5 +25,5 @@ urlpatterns = [
 
     path('', views.home, name='home'),
 
-    # path('tags/<str:tag_name>/', views.posts_by_tag, name='posts_by_tag'),
+    path('tags/<slug:tag_slug>/', views.PostByTagListView.as_view(), name='posts_by_tag'),
 ]
