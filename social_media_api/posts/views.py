@@ -46,7 +46,24 @@ class CommentViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["post", "author"]  # allow ?post=1
     ordering_fields = ["created_at"]
-    
+
     def perform_create(self, serializer):
         # Automatically set the logged-in user as the author
         serializer.save(author=self.request.user)
+
+class FeedViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Viewset for the user's feed, showing posts from followed users.
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            raise PermissionDenied("You must be logged in to view the feed.")
+        # Get posts from users this user is following
+        following = user.following.all()
+        return Post.objects.filter(author__in=following).order_by("-created_at")
+    
