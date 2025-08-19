@@ -1,5 +1,5 @@
 from django.urls import include, path
-from .views import RegisterView, LoginView, ProfileView, UserViewSet
+from .views import RegisterView, LoginView, ProfileView, UserViewSet, FollowUserView, UnfollowUserView
 from rest_framework.routers import DefaultRouter
 
 router= DefaultRouter()
@@ -10,6 +10,6 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name="login"),
     path('profile/', ProfileView.as_view(), name="profile"),
     path('', include(router.urls)), 
-    path('follow/<int:pk>/', UserViewSet.as_view({'post': 'follow_user'}), name='follow-user'),
-    path('unfollow/<int:pk>/', UserViewSet.as_view({'post': 'unfollow_user'}), name='unfollow-user'), 
+    path("follow/<int:user_id>/", FollowUserView.as_view(), name="follow-user"),
+    path("unfollow/<int:user_id>/", UnfollowUserView.as_view(), name="unfollow-user"),
 ]
