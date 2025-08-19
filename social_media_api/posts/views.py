@@ -64,6 +64,6 @@ class FeedViewSet(viewsets.ReadOnlyModelViewSet):
         if not user.is_authenticated:
             raise PermissionDenied("You must be logged in to view the feed.")
         # Get posts from users this user is following
-        following = user.following.all()
-        return Post.objects.filter(author__in=following).order_by("-created_at")
+        following_users = user.following.all()
+        return Post.objects.filter(author__in=following_users).order_by("-created_at")
     
