@@ -1,10 +1,18 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, generics
+from rest_framework.response import Response
+from rest_framework.decorators import action    
 from rest_framework.exceptions import PermissionDenied
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
-
+from django.shortcuts import get_object_or_404
+from accounts.models import CustomUser
+from accounts.serializers import UserSerializer
+from rest_framework.authtoken.models import Token
+from notifications.models import Notification
+from .models import Like
+from rest_framework import status
 
 # ----- Custom Permission -----
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -46,10 +54,23 @@ class CommentViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ["post", "author"]  # allow ?post=1
     ordering_fields = ["created_at"]
+    
+    @staticmethod
+    def create_comment_notification(user, comment):
+        # Don’t notify if the author comments on their own post
+        if comment.post.author == user:
+            return
+
+        Notification.objects.create(
+            recipient=comment.post.author,   # post owner
+            actor=user,                      # the commenter
+            verb="commented on your post",
+            target=comment                   # GenericForeignKey handles this
+        )
 
     def perform_create(self, serializer):
-        # Automatically set the logged-in user as the author
-        serializer.save(author=self.request.user)
+        comment = serializer.save(author=self.request.user)
+        self.create_comment_notification(self.request.user, comment)
 
 class FeedViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -66,4 +87,42 @@ class FeedViewSet(viewsets.ReadOnlyModelViewSet):
         # Get posts from users this user is following
         following_users = user.following.all()
         return Post.objects.filter(author__in=following_users).order_by("-created_at")
-    
+
+class LikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        """Like a post"""
+        post = get_object_or_404(Post, pk=pk)
+
+        # Prevent multiple likes
+        if Like.objects.filter(post=post, user=request.user).exists():
+            return Response({"detail": "You already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create Like
+        Like.objects.create(post=post, user=request.user)
+
+        # Create notification for post author
+        if post.author != request.user:  # Don’t notify if you like your own post
+            Notification.objects.create(
+                recipient=post.author,
+                actor=request.user,
+                verb="liked",
+                target=post
+            )
+
+        return Response({"detail": "Post liked!"}, status=status.HTTP_201_CREATED)
+
+class UnlikePostView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, pk):
+        """Unlike a post"""
+        post = get_object_or_404(Post, pk=pk)
+        like = Like.objects.filter(post=post, user=request.user).first()
+
+        if not like:
+            return Response({"detail": "You haven’t liked this post."}, status=status.HTTP_400_BAD_REQUEST)
+
+        like.delete()
+        return Response({"detail": "Like removed."}, status=status.HTTP_204_NO_CONTENT)    

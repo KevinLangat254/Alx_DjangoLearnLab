@@ -7,6 +7,8 @@ from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from rest_framework.decorators import action
 from rest_framework import status
 from django.shortcuts import get_object_or_404
+from notifications.models import Notification
+from django.contrib.contenttypes.models import ContentType
 
 # User Registration
 class RegisterView(generics.CreateAPIView):
@@ -72,6 +74,16 @@ class UserViewSet(viewsets.ModelViewSet):
 class FollowUserView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
+    
+    @staticmethod
+    def create_follow_notification(follower, followed_user):
+        Notification.objects.create(
+            recipient=followed_user,
+            actor=follower,
+            verb="followed you",
+            target_content_type=ContentType.objects.get_for_model(follower),
+            target_object_id=follower.id
+        )
 
     def post(self, request, user_id):
         """Follow another user"""
@@ -82,6 +94,8 @@ class FollowUserView(generics.GenericAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
         request.user.following.add(user_to_follow)
+        self.create_follow_notification(request.user, user_to_follow)
+    
         return Response({"detail": f"You are now following {user_to_follow.username}."},
                         status=status.HTTP_200_OK)
 
