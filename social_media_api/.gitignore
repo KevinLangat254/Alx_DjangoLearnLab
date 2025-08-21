@@ -1,2 +1,8 @@
 # Environment variables
 .env
+
+# Virtual environment
+venv/
+ 
+# Django stuff
+db.sqlite3
