@@ -154,3 +154,30 @@ REST_FRAMEWORK = {
         "rest_framework.filters.OrderingFilter",
     ],
 }
+
+# Security settings
+
+# Prevent XSS attacks by enabling the browser’s built-in XSS filter
+SECURE_BROWSER_XSS_FILTER = True
+
+# Prevent your site from being embedded in iframes (clickjacking protection)
+X_FRAME_OPTIONS = "DENY"   # or "SAMEORIGIN" if you need iframe support on your own domain
+
+# Prevent browsers from guessing the content type (mitigates MIME attacks)
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Redirect all HTTP requests to HTTPS (only set True when using SSL in production)
+SECURE_SSL_REDIRECT = True
+
+# Use secure cookies
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
+# Prevent JavaScript access to session cookies
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = True
+
+# HSTS (forces browsers to use HTTPS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
